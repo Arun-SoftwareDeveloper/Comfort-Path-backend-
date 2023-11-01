@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const UserRoutes = require("./Routes/UserRoutes");
+const PaymentRotues = require("./Routes/PaymentRouter");
 const dbUrl =
   "mongodb+srv://arunramasamy46:arunramasamy46@cluster0.etmdqsc.mongodb.net/?retryWrites=true&w=majority";
 const bodyParser = require("body-parser");
@@ -22,6 +23,7 @@ mongoose
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/", UserRoutes);
+app.use("/payment", PaymentRotues);
 app.get("/", (req, res) => {
   res.send("Hello");
 });
