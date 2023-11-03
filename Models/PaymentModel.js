@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema({
   orderId: String,
+  razorpayKey: String,
   amount: Number,
   paymentId: String,
   signature: String,
