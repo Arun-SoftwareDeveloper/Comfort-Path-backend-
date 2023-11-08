@@ -1,13 +1,13 @@
-// controllers/PaymentController.js Payent
+// controllers/PaymentController.js
 const Payment = require("../Models/PaymentModel");
-const User = require("../Models/UserForm");
 const Razorpay = require("razorpay");
+const nodemailer = require("nodemailer");
 
 const handlePaymentSuccess = async (req, res) => {
   try {
-    const { orderId, amount, paymentId, signature } = req.body;
+    const { orderId, amount, paymentId, signature, recipientEmail } = req.body;
 
-    if (!orderId || !amount || !paymentId || !signature) {
+    if (!orderId || !amount || !paymentId || !signature || !recipientEmail) {
       return res.status(400).json({ error: "Invalid data" });
     }
 
@@ -17,13 +17,13 @@ const handlePaymentSuccess = async (req, res) => {
       amount,
       paymentId,
       signature,
+      recipientEmail,
       timestamp: new Date(),
     });
 
     await payment.save();
 
-    // Send a confirmation email
-    const nodemailer = require("nodemailer");
+    // Send a confirmation email to the recipient
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -34,7 +34,7 @@ const handlePaymentSuccess = async (req, res) => {
 
     const mailOptions = {
       from: "arunramasamy46@gmail.com",
-      to: "arunramasamy46@gmail.com",
+      to: recipientEmail,
       subject: "Payment Confirmation",
       text: `Payment for order ${orderId} of ${amount} INR was successful.`,
     };
@@ -56,6 +56,16 @@ const handlePaymentSuccess = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
+    const recipientEmail = req.body.recipientEmail;
+
+    // Save the recipient's email to the database
+    const payment = new Payment({
+      recipientEmail,
+      timestamp: new Date(),
+    });
+
+    await payment.save();
+
     // Use the Razorpay package to create an order
     const razorpay = new Razorpay({
       key_id: "rzp_test_nlbvgLgyo99Uom",
@@ -75,8 +85,7 @@ const createOrder = async (req, res) => {
         return res.status(500).json({ error: "Failed to create an order" });
       }
 
-      // Send a confirmation email
-      const nodemailer = require("nodemailer");
+      // Send a confirmation email to the recipient
       const transporter = nodemailer.createTransport({
         service: "Gmail",
         auth: {
@@ -87,7 +96,7 @@ const createOrder = async (req, res) => {
 
       const mailOptions = {
         from: "arunramasamy46@gmail.com",
-        to: "arunramasamy1711@gmail.com",
+        to: recipientEmail,
         subject: "Order Created",
         text: `Your order with receipt number ${order.receipt} has been successfully created.`,
       };

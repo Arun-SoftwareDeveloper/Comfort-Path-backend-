@@ -1,4 +1,3 @@
-// models/Payment.js
 const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema({
@@ -7,6 +6,7 @@ const paymentSchema = new mongoose.Schema({
   amount: Number,
   paymentId: String,
   signature: String,
+  recipientEmail: String, // Store the recipient's email
   timestamp: Date,
 });
 
