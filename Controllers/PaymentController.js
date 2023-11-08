@@ -1,5 +1,6 @@
 // controllers/PaymentController.js Payent
 const Payment = require("../Models/PaymentModel");
+const User = require("../Models/UserForm");
 const Razorpay = require("razorpay");
 
 const handlePaymentSuccess = async (req, res) => {
@@ -57,8 +58,8 @@ const createOrder = async (req, res) => {
   try {
     // Use the Razorpay package to create an order
     const razorpay = new Razorpay({
-      key_id: "rzp_test_qXZj1G4Ko5WheL",
-      key_secret: "WSBwwfOYMlb0MnW56fLFfQHp",
+      key_id: "rzp_test_nlbvgLgyo99Uom",
+      key_secret: "CdJ75QZkenKvGkdeqNlcECVP",
     });
 
     // Replace this with the actual order details
@@ -74,7 +75,32 @@ const createOrder = async (req, res) => {
         return res.status(500).json({ error: "Failed to create an order" });
       }
 
-      return res.status(200).json(order);
+      // Send a confirmation email
+      const nodemailer = require("nodemailer");
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+          user: "arunramasamy46@gmail.com",
+          pass: "pruxtxnekznczdpc",
+        },
+      });
+
+      const mailOptions = {
+        from: "arunramasamy46@gmail.com",
+        to: "arunramasamy1711@gmail.com",
+        subject: "Order Created",
+        text: `Your order with receipt number ${order.receipt} has been successfully created.`,
+      };
+
+      transporter.sendMail(mailOptions, (emailError, info) => {
+        if (emailError) {
+          console.log("Email error: " + emailError);
+          return res.status(500).json({ error: "Email sending failed" });
+        } else {
+          console.log("Email sent: " + info.response);
+          return res.status(200).json(order);
+        }
+      });
     });
   } catch (error) {
     console.error("Order creation error: " + error);

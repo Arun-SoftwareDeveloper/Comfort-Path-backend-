@@ -101,7 +101,7 @@ async function forgotPassword(req, res) {
     });
   } catch (error) {
     console.error("Error Occurred" + " " + error);
-    return res.status(500).send({ message: "Internal Server Error" });
+    return res.status(501).send({ message: "Internal Server Error" });
   }
 }
 
